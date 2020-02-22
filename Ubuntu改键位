@@ -2,7 +2,7 @@
 
 cd /usr/share/X11/xkb/symbols/
 
-vi pc
+sudo vi pc
 
 # pc文件内容如下（粘贴即可）：
 default  partial alphanumeric_keys modifier_keys
@@ -95,7 +95,7 @@ xkb_symbols "editing" {
 # pc文件内容如上（粘贴即可）：
 
 ######################################################################################################
-vi us
+sudo vi us
 
 # us文件内容如下（粘贴即可）：
 default  partial alphanumeric_keys modifier_keys
@@ -1909,3 +1909,10 @@ partial alphanumeric_keys
 # us文件内容如上（粘贴即可）：
 
 
+cd /usr/share/X11/xkb/rules
+sudo cp ../rules rules.bak  # 备份， 以免出现意外
+sudo rm *.xml    # 删除掉此处所有的.xml文件
+
+shutdown -r now  # 重启电脑
+
+操作正常的话， 改键位完成！
