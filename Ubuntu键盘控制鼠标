@@ -1,0 +1,139 @@
+打开终端
+
+sudo apt install python3
+
+sudo -H pip3 install pynput
+
+cd /opt
+
+sudo vi mouseless.py
+
+############## /opt/mmouseless.py内容如下（粘贴即可）################
+#!/usr/bin/env python3
+"""
+switch_mode + 方向键 为移动鼠标
+switch_mode + alt_r 为鼠标左键
+switch_mode + ctrl_r 为鼠标键
+"""
+
+import pynput
+
+
+class YGlobal(object):
+    dd = 9
+
+    left_key_ = '\''
+    left_key_ = pynput.keyboard._xorg.Key.alt_r
+    # right_key_ = ']'
+    right_key_ = ';'
+    right_key_ = pynput.keyboard.KeyCode.from_char('\'')
+    right_key_ = pynput.keyboard._xorg.Key.ctrl_r
+    # right_key_ = pynput.keyboard.KeyCode.from_char('/')
+
+    # mode_switch
+    # alt_gr = pynput.keyboard.KeyCode._from_symbol('Mode_switch')
+
+    move_left_key_ = 'm'
+    move_down_key_ = ','
+    move_up_key_ = '.'
+    move_right_key_ = '/'
+
+    move_left_key_ = pynput.keyboard._xorg.Key.left
+    move_down_key_ = pynput.keyboard._xorg.Key.down
+    move_up_key_ = pynput.keyboard._xorg.Key.up
+    move_right_key_ = pynput.keyboard._xorg.Key.right
+
+    # ASDF控制方向
+    # move_left_key_ = pynput.keyboard.KeyCode.from_char('a')
+    # move_down_key_ = pynput.keyboard.KeyCode.from_char('s')
+    # move_up_key_ = pynput.keyboard.KeyCode.from_char('w')
+    # move_right_key_ = pynput.keyboard.KeyCode.from_char('d')
+
+    ctrl_flag_ = False  # switch_mode_flag
+    mouse_controller_ = pynput.mouse.Controller()
+    left_flag_ = False
+    right_flag_ = False
+
+    alt_l = pynput.keyboard._xorg.Key.alt_l
+    alt_flag_ = False  # 鼠标移动加速功能
+
+
+def IsKey(key, ch):
+    if key == ch:
+        return True
+    else:
+        return False
+
+
+def ButtonLeft(press_flag):
+    YGlobal.left_flag_ = press_flag
+    if press_flag:
+        YGlobal.mouse_controller_.press(pynput.mouse.Button.left)
+    else:
+        YGlobal.mouse_controller_.release(pynput.mouse.Button.left)
+    return None
+
+
+def ButtonRight(press_flag):
+    YGlobal.right_flag_ = press_flag
+    if press_flag:
+        YGlobal.mouse_controller_.press(pynput.mouse.Button.right)
+    else:
+        YGlobal.mouse_controller_.release(pynput.mouse.Button.right)
+    return None
+
+
+def OnPress(key):
+    # print('{0} press'.format(key)) #
+    if (key == pynput.keyboard.Key.alt_gr or key == pynput.keyboard.Key.alt_gr) and not YGlobal.ctrl_flag_:
+        YGlobal.ctrl_flag_ = True
+    elif YGlobal.ctrl_flag_:
+        if not YGlobal.left_flag_ and IsKey(key, YGlobal.left_key_):
+            ButtonLeft(True)
+        elif not YGlobal.right_flag_ and IsKey(key, YGlobal.right_key_):
+            ButtonRight(True)
+
+        elif IsKey(key, YGlobal.move_down_key_):
+            YGlobal.mouse_controller_.move(0, YGlobal.dd)
+
+        elif IsKey(key, YGlobal.move_up_key_):
+            YGlobal.mouse_controller_.move(0, -YGlobal.dd)
+
+        elif IsKey(key, YGlobal.move_left_key_):
+            YGlobal.mouse_controller_.move(-YGlobal.dd, 0)
+
+        elif IsKey(key, YGlobal.move_right_key_):
+            YGlobal.mouse_controller_.move(YGlobal.dd, 0)
+
+
+def OnRelease(key):
+    # print('{0} release'.format(key))
+    if key == pynput.keyboard.Key.scroll_lock:
+        return False
+    elif key == pynput.keyboard.Key.alt_gr or key == pynput.keyboard.Key.alt_gr:
+        YGlobal.ctrl_flag_ = False
+        if YGlobal.left_flag_:
+            ButtonLeft(False)
+        if YGlobal.right_flag_:
+            ButtonRight(False)
+    elif YGlobal.ctrl_flag_:
+        if IsKey(key, YGlobal.left_key_):
+            ButtonLeft(False)
+        elif IsKey(key, YGlobal.right_key_):
+            ButtonRight(False)
+
+
+with pynput.keyboard.Listener(on_press=OnPress, on_release=OnRelease) as listener:
+    listener.join()
+############## /opt/mmouseless.py内容如上（粘贴即可）################
+
+
+sudo vi /usr/bin/mouseless
+
+############## /usr/bin/mmouseless内容如下（粘贴即可）################
+#!/bin/bash
+python3 /opt/mouseless.py
+############## /usr/bin/mmouseless内容如上（粘贴即可）################
+
+
+最后， 将/usr/bin/mouseless加入开机自启动程序即可
